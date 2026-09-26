@@ -18,14 +18,16 @@ The full rules are in the
 [engineering workflow](https://github.com/veritrace-platform/veritrace/blob/main/docs/guides/engineering-workflow.md).
 In short:
 
-1. Branch from `develop`: `feat/<story-id>-<slug>`, `fix/<slug>`, `docs/<slug>`, `chore/<slug>`, …
+1. Branch from `develop`: `feat/<slug>`, `fix/<slug>`, `docs/<slug>`, `chore/<slug>`, …
 2. Commit using [Conventional Commits](https://www.conventionalcommits.org/), for example
    `feat(handover): verify pickup code attempts`.
-3. Keep each pull request to one story or one coherent slice of it. Update contracts (migrations,
-   OpenAPI, messaging docs, ADRs) in the same pull request.
-4. Make sure `make lint test` passes and CI is green.
-5. Work pull requests are squash-merged into `develop`. Release pull requests merge `develop` into `main`
-   with a merge commit (never squash) and are tagged with SemVer.
+3. Open the pull request **against `develop`**. `main` is the default branch and only receives releases.
+   The title follows the commit format; the description is optional.
+4. Keep each pull request to one coherent change, and update contracts (migrations, OpenAPI, messaging
+   docs, ADRs) in the same pull request.
+5. Make sure `make lint test` passes and CI is green.
+6. Work pull requests are squash-merged into `develop`. Release pull requests merge `develop` into `main`
+   with a merge commit (never squash).
 
 ## Standards
 
