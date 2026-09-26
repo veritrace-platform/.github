@@ -24,8 +24,8 @@ In short:
 3. Keep each pull request to one story or one coherent slice of it. Update contracts (migrations,
    OpenAPI, messaging docs, ADRs) in the same pull request.
 4. Make sure `make lint test` passes and CI is green.
-5. Pull requests are squash-merged into `develop`. Releases merge `develop` into `main` and are tagged
-   with SemVer.
+5. Work pull requests are squash-merged into `develop`. Release pull requests merge `develop` into `main`
+   with a merge commit (never squash) and are tagged with SemVer.
 
 ## Standards
 
