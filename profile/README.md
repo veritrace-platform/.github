@@ -11,6 +11,9 @@
 
 ---
 
+> 👉 **Start here:** [`veritrace`](https://github.com/veritrace-platform/veritrace) is the project home, with
+> documentation, roadmap, architecture decisions, and a one-command workspace setup for all repositories.
+
 ## Overview
 
 VeriTrace gives companies that do not fully trust each other one shared, tamper-evident record of the
@@ -47,7 +50,8 @@ goods they move. Those companies include brand owners, carriers, distributors, a
 
 | Repository | Purpose | Stack |
 | --- | --- | --- |
-| [`platform-infrastructure`](https://github.com/veritrace-platform/platform-infrastructure) | Local environment, bootstrap, gateway, IoT simulator, **documentation** | Docker Compose, Caddy, Python |
+| [`veritrace`](https://github.com/veritrace-platform/veritrace) | **Project home**: documentation, roadmap, decisions, workspace tooling | Markdown, Bash, Python |
+| [`platform-infrastructure`](https://github.com/veritrace-platform/platform-infrastructure) | Local environment, bootstrap, gateway, IoT simulator | Docker Compose, Caddy, Python |
 | [`core-business-service`](https://github.com/veritrace-platform/core-business-service) | Tenants, identity, GS1 catalog, lots, inventory, shipments, handover, recall, document vault, public trace API | Go, PostgreSQL |
 | [`telemetry-stream-service`](https://github.com/veritrace-platform/telemetry-stream-service) | Telemetry ingestion, breach detection, real-time notifications | Go, MQTT, Kafka, TimescaleDB |
 | [`blockchain-relayer-service`](https://github.com/veritrace-platform/blockchain-relayer-service) | Merkle batching, gasless commits, chain indexing, proofs | Go, Redis, go-ethereum |
@@ -59,7 +63,7 @@ goods they move. Those companies include brand owners, carriers, distributors, a
 ## Documentation
 
 Architecture, domain rules, API and messaging contracts, decision records, and the roadmap are in
-[`platform-infrastructure/docs`](https://github.com/veritrace-platform/platform-infrastructure/tree/main/docs).
+[`veritrace/docs`](https://github.com/veritrace-platform/veritrace/tree/main/docs).
 
 ## License
 
