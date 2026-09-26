@@ -1,85 +1,70 @@
 # VeriTrace Platform
-> **Enterprise Multi-Tenant Supply Chain Management & GS1-Compliant Traceability Platform Powered by Real-Time Telemetry and Decentralized Verification.**
+
+> **Multi-tenant supply chain execution and GS1 traceability, with real-time cold-chain monitoring and
+> blockchain-anchored verification.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://golang.org)
-[![Next.js Version](https://img.shields.io/badge/Next.js-14_App_Router-black?logo=next.js)](https://nextjs.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16_RLS-316192?logo=postgresql)](https://www.postgresql.org)
-[![Kafka](https://img.shields.io/badge/Apache_Kafka-KRaft_Mode-231F20?logo=apachekafka)](https://kafka.apache.org)
-[![Polygon](https://img.shields.io/badge/Polygon-Amoy_Testnet-8247E5?logo=polygon)](https://polygon.technology)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)](https://www.docker.com)
+[![Go](https://img.shields.io/badge/Go-1.27-00ADD8?logo=go)](https://go.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18_+_TimescaleDB-316192?logo=postgresql)](https://www.postgresql.org)
+[![Kafka](https://img.shields.io/badge/Apache_Kafka-KRaft-231F20?logo=apachekafka)](https://kafka.apache.org)
+[![Polygon](https://img.shields.io/badge/Polygon-Amoy-8247E5?logo=polygon)](https://polygon.technology)
 
 ---
 
-## 📌 Overview
+> 👉 **Start here:** [`veritrace`](https://github.com/veritrace-platform/veritrace) is the project home, with
+> documentation, roadmap, architecture decisions, and a one-command workspace setup for all repositories.
 
-**VeriTrace** is an enterprise multi-tenant supply chain execution and traceability platform designed to eliminate data silos, safeguard cold-chain integrity, and ensure end-to-end provenance across untrusted logistics stakeholders.
+## Overview
 
-The platform bridges physical logistics operations (WMS/TMS) with cryptographic data integrity through three technical pillars:
-1. **Standardized Identity & Strict Isolation:** Full compliance with global GS1 EPCIS 2.0 standards (GLN, GTIN, SSCC), protected by dynamic Attribute-Based Access Control (ABAC) and database-level PostgreSQL Row-Level Security (RLS).
-2. **High-Throughput Telemetry Ingestion:** Real-time cold chain monitoring via Mosquitto MQTT, streamed through Apache Kafka (KRaft mode) into TimescaleDB, with sub-second WebSocket breach dispatching.
-3. **Cryptographic Integrity & Gasless Verification:** Client-side Envelope Encryption (AES-256-GCM) with IPFS storage for confidential compliance documents, anchored to a Polygon Layer-2 network using Merkle Tree state batching and an automated Go Relayer engine.
+VeriTrace gives companies that do not fully trust each other one shared, tamper-evident record of the
+goods they move. Those companies include brand owners, carriers, distributors, and retailers.
 
----
+- **GS1 identification:** locations (GLN), products (GTIN), lots, and logistic units (SSCC) are validated
+  with Modulo 10 check digits and bound to each company's GS1 prefix.
+- **Multi-party isolation:** every company's data is isolated by PostgreSQL row-level security. Shipments
+  are shared only with their participants: the owner, the carrier, and the consignee.
+- **Custody handover:** the origin issues a one-time pickup code; the driver scans the SSCC inside the
+  origin's geo-fence and enters the code; the destination confirms delivery inside its own geo-fence.
+- **Emergency recall:** one action locks a lot across every company that holds it and alerts all of them
+  in real time.
+- **Cold-chain monitoring:** sensor readings travel MQTT → Kafka → TimescaleDB. Sustained excursions of
+  30 seconds or more raise incidents that reach dashboards and drivers within a second.
+- **Tamper evidence:** every shipment event is canonicalized, hashed, and chained. Batches of hashes are
+  committed as Merkle roots on Polygon by a gasless relayer, so users never touch a wallet.
+- **Public verification:** signed GS1 Digital Link labels let consumers verify provenance, cold-chain
+  history, and on-chain proofs, and let the platform detect cloned labels.
 
-## 🏛️ System Architecture
+## Architecture
 
 ```
-[ CLIENT LAYER ]
-  ├── enterprise-dashboard       (Next.js 14 Web WMS/TMS Management)
-  ├── driver-mobile-pwa          (Next.js PWA - Hardware Barcode/QR Scanning)
-  └── public-trace-portal        (Next.js 14 ISR - Edge-Cached Public Audit)
-                                 │
-                                 ▼ (HTTPS / WSS)
-[ API GATEWAY & SECURITY LAYER ]
-  └── Nginx Reverse Proxy (SSL Termination + JWT/ABAC Context Injection)
-                                 │
-                                 ▼
-[ GOLANG MICROSERVICES ]
-  ├── core-business-service      ──► PostgreSQL 16 (Tenant RLS Partitioning)
-  ├── telemetry-stream-service   ──► Mosquitto MQTT ──► Kafka KRaft ──► TimescaleDB
-  └── blockchain-relayer-service ─► Redis 7 Queue ──► Master Relayer Signer
-                                 │
-                 ┌───────────────┴───────────────┐
-                 ▼ (Decentralized Storage)       ▼ (Telemetry Ingestion)
-     [ Pinata IPFS Cluster ]             [ Python IoT Simulator Engine ]
-     (AES-256 Encrypted Documents)       (MQTT Stream & Anomaly Triggering)
-                 │
-                 ▼ (On-Chain Settlement)
-     [ Polygon Layer-2 Network ]
-     (SupplyChainTraceability.sol - Merkle State Commitment Store)
+ enterprise-dashboard   driver-mobile-pwa   public-trace-portal
+            └───────────────┬──────────────────────┘
+                     Gateway (REST + WebSocket)
+        ┌──────────────────┼────────────────────────┐
+ core-business-service  telemetry-stream-service  blockchain-relayer-service
+   PostgreSQL (RLS)       TimescaleDB · MQTT         Redis · Polygon · IPFS
+        └──────────── Kafka (shipment.events, telemetry.incidents) ───────┘
 ```
 
----
+## Repositories
 
-## ⚙️ Core Technical Capabilities
+| Repository | Purpose | Stack |
+| --- | --- | --- |
+| [`veritrace`](https://github.com/veritrace-platform/veritrace) | **Project home**: documentation, roadmap, decisions, workspace tooling | Markdown, Bash, Python |
+| [`platform-infrastructure`](https://github.com/veritrace-platform/platform-infrastructure) | Local environment, bootstrap, gateway, IoT simulator | Docker Compose, Caddy, Python |
+| [`core-business-service`](https://github.com/veritrace-platform/core-business-service) | Tenants, identity, GS1 catalog, lots, inventory, shipments, handover, recall, document vault, public trace API | Go, PostgreSQL |
+| [`telemetry-stream-service`](https://github.com/veritrace-platform/telemetry-stream-service) | Telemetry ingestion, breach detection, real-time notifications | Go, MQTT, Kafka, TimescaleDB |
+| [`blockchain-relayer-service`](https://github.com/veritrace-platform/blockchain-relayer-service) | Merkle batching, gasless commits, chain indexing, proofs | Go, Redis, go-ethereum |
+| [`smart-contracts`](https://github.com/veritrace-platform/smart-contracts) | On-chain commitment contract | Solidity, Foundry, OpenZeppelin |
+| [`enterprise-dashboard`](https://github.com/veritrace-platform/enterprise-dashboard) | Management web application | Web |
+| [`driver-mobile-pwa`](https://github.com/veritrace-platform/driver-mobile-pwa) | Driver app: scanning, handover, alerts | PWA |
+| [`public-trace-portal`](https://github.com/veritrace-platform/public-trace-portal) | Consumer verification portal | Web |
 
-* **GS1 EPCIS 2.0 Compliance:** Native validation and assignment of Global Location Numbers (GLN-13), Global Trade Item Numbers (GTIN-14), and Serial Shipping Container Codes (SSCC-18) using automated Modulo 10 check-digit algorithms.
-* **Database-Enforced Multi-Tenancy:** Multi-organization data isolation achieved via PostgreSQL Row-Level Security (RLS) policies driven by runtime JWT session variables (`app.current_tenant_id`).
-* **Real-Time Cold Chain Pipeline:** Scalable ingestion architecture built on Mosquitto MQTT Broker and Apache Kafka, storing high-frequency sensor readings in TimescaleDB hypertables while detecting temperature breaches within 30 seconds.
-* **Confidential Decentralized Storage:** Envelope Encryption scheme combining AES-256-GCM symmetric encryption with IPFS content-addressed storage to guarantee commercial secrecy for compliance certificates (CO/CQ).
-* **Gasless Web3 Relayer Engine:** Decouples enterprise users from crypto wallet management. An asynchronous Go worker handles Redis queues, locks atomic transaction nonces, batches Merkle roots, and sponsors gas fees on Polygon L2.
-* **Anti-Counterfeiting Public Portal:** GS1 Digital Link QR resolution integrated with cryptographic HMAC signatures and geo-frequency anomaly detection to prevent QR duplication and physical label tampering.
-* **Unified Observability:** Full-stack operational visibility combining Prometheus performance metrics and Grafana Loki structured log streams into a single dashboard.
+## Documentation
 
----
+Architecture, domain rules, API and messaging contracts, decision records, and the roadmap are in
+[`veritrace/docs`](https://github.com/veritrace-platform/veritrace/tree/main/docs).
 
-## 📦 Repository Ecosystem
+## License
 
-The platform is partitioned into autonomous repositories organized by architectural domain:
-
-| Repository | Layer | Core Tech Stack | Primary Responsibilities |
-| :--- | :--- | :--- | :--- |
-| [`core-business-service`](https://github.com/veritrace-platform/core-business-service) | Core Backend | Go, Gin, GORM, PostgreSQL 16 | Tenant lifecycle, ABAC authorization, GS1 catalog (GLN, GTIN, SSCC), shipment state machine, emergency recall orchestration. |
-| [`telemetry-stream-service`](https://github.com/veritrace-platform/telemetry-stream-service) | Telemetry Backend | Go, Mosquitto, Kafka KRaft, TimescaleDB | MQTT telemetry ingestion, Kafka stream processing, TimescaleDB hypertable persistence, WebSocket broadcast hub. |
-| [`blockchain-relayer-service`](https://github.com/veritrace-platform/blockchain-relayer-service) | Settlement Backend | Go, `go-ethereum`, Redis 7 | Off-chain Merkle root computation, Redis transaction queue management, nonce synchronization, Polygon L2 gasless execution. |
-| [`smart-contracts`](https://github.com/veritrace-platform/smart-contracts) | Blockchain | Solidity 0.8.20, Foundry, OpenZeppelin | `SupplyChainTraceability.sol` state commitment contract, role-based relayer access controls, automated test suites. |
-| [`enterprise-dashboard`](https://github.com/veritrace-platform/enterprise-dashboard) | Web Application | Next.js 14, TypeScript, Tailwind, Shadcn | Enterprise WMS/TMS desktop interface, dynamic GS1 barcode generation, live telemetry charts, emergency recall triggers. |
-| [`driver-mobile-pwa`](https://github.com/veritrace-platform/driver-mobile-pwa) | Edge / Mobile | Next.js 14 PWA, Web Camera APIs | Driver touch-first mobile PWA, hardware-accelerated barcode scanning, offline-capable 3-way handover protocols with dynamic OTP. |
-| [`public-trace-portal`](https://github.com/veritrace-platform/public-trace-portal) | Public Web | Next.js 14 ISR, Edge Runtime, ECharts | Public consumer provenance resolver, GS1 Digital Link validation, HMAC anti-tampering verification, on-chain proof exploration. |
-| [`platform-infrastructure`](https://github.com/veritrace-platform/platform-infrastructure) | Infrastructure | Docker Compose, Nginx, Prometheus, Loki | Multi-container local orchestration, SQL migration baselines, Nginx routing configs, simulated IoT fleet generator. |
-
----
-
-## 📄 License
-This project is licensed under the [MIT License](LICENSE).
+[MIT](https://github.com/veritrace-platform/.github/blob/main/LICENSE)
