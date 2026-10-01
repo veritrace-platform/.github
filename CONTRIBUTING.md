@@ -1,7 +1,7 @@
 # Contributing to VeriTrace
 
-These guidelines apply to every repository in the `veritrace-platform` organization unless a repository
-overrides them.
+These guidelines cover the backend, platform, and documentation repositories of the `veritrace-platform`
+organization. The frontend repositories follow their owner's conventions.
 
 ## Before you start
 
@@ -14,20 +14,14 @@ overrides them.
 
 ## Workflow
 
-The full rules are in the
-[engineering workflow](https://github.com/veritrace-platform/veritrace/blob/main/docs/guides/engineering-workflow.md).
+See the [engineering workflow](https://github.com/veritrace-platform/veritrace/blob/main/docs/guides/engineering-workflow.md).
 In short:
 
-1. Branch from `develop`: `feat/<slug>`, `fix/<slug>`, `docs/<slug>`, `chore/<slug>`, …
-2. Commit using [Conventional Commits](https://www.conventionalcommits.org/), for example
-   `feat(handover): verify pickup code attempts`.
-3. Open the pull request **against `develop`**. `main` is the default branch and only receives releases.
-   The title follows the commit format; the description is optional.
-4. Keep each pull request to one coherent change, and update contracts (migrations, OpenAPI, messaging
-   docs, ADRs) in the same pull request.
-5. Make sure `make lint test` passes and CI is green.
-6. Work pull requests are squash-merged into `develop`. Release pull requests merge `develop` into `main`
-   with a merge commit (never squash).
+1. Branch from `develop` and open the pull request against `develop`; `main` only receives releases.
+2. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages and pull request
+   titles, for example `feat(handover): verify pickup code attempts`.
+3. Change contracts (migrations, OpenAPI, messaging docs, ADRs) together with the code.
+4. Merge when `make lint test` passes and CI is green, with a squash or a merge commit.
 
 ## Standards
 
